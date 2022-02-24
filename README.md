@@ -56,22 +56,6 @@ This is the resident module for the [ocloud framework](https://github.com/oracle
 | <a name="output_freeform_tags"></a> [freeform\_tags](#output\_freeform\_tags) | A list of predefined freeform tags, referenced in the provisioning process. |
 | <a name="output_defined_tags"></a> [defined\_tags](#output\_defined\_tags) | A list of actionable tags, utilized for operation, budget- and compliance control. |
 
-## Prerequisites
-Code is written in HashiCorp Configuration Language (HCL), includes data stored in JSON format and cloud init scripts. The OCI Resource Manager executes Terraform and deploys Service Assets into a tenancy. Engineers should familerize themselfes with the following topics:
-
-* [Oracle Cloud Infrastructure (OCI) Account](https://www.oracle.com/cloud/free)
-* [Oracle Resource Manager](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/resourcemanager.htm)
-* [HashiCorp Terraform](https://www.terraform.io)
-* [Terraform Service Provider for OCI](https://registry.terraform.io/providers/hashicorp/oci/latest)
-* [Terraform Time Service Provider](https://registry.terraform.io/providers/hashicorp/time/latest)
-* [Cloud Init](https://cloudinit.readthedocs.io/en/latest)
-
-## Notes/Issues
-* Destroying compartments and tag namespaces can take some time and will fail in some cases. Repeat the destroy command will continue the process.
-
-## URLs
-This repository is intended to be used with the Oracle Resource Manager. Using the "Deploy to Oracle Cloud" button requires users to [sign in](https://www.oracle.com/cloud/sign-in.html).
-
 ## Contributing
 This project is a community project the code is open source.  Please submit your contributions by forking this repository and submitting a pull request!  Oracle appreciates any contributions that are made by the open source community.
 
