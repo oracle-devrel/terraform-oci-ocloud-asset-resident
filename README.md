@@ -1,6 +1,6 @@
 ## Requirements
 
-This is the resident module for the [ocloud framework](https://github.com/oracle-devrel/terraform-oci-ocloud-configuration). It prepares a tenancy to host an isolated service in an own [network segment](https://github.com/oracle-devrel/terraform-oci-ocloud-asset-network). 
+No requirements.
 
 ## Providers
 
@@ -10,10 +10,33 @@ This is the resident module for the [ocloud framework](https://github.com/oracle
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_time"></a> [time](#provider\_time) | n/a |
 
-## Modules
-
-* [Default Configuration](https://github.com/oracle-devrel/terraform-oci-ocloud-configuration)
-* [Service Resident](https://github.com/oracle-devrel/terraform-oci-ocloud-configuration)
+## Module
+```
+// --- operation controls --- //
+provider "oci" {
+  alias  = "home"
+  region = module.configuration.tenancy.region.key
+}
+module "resident" {
+  source = "github.com/ocilabs/resident"
+  depends_on = [module.configuration]
+  providers = {oci = oci.home}
+  tenancy   = module.configuration.tenancy
+  resident  = module.configuration.resident
+  input = {
+    # Reference to the deployment root. The service is setup in an encapsulating child compartment 
+    parent_id     = var.parent
+    # Enable compartment delete on destroy. If true, compartment will be deleted when `terraform destroy` is executed; If false, compartment will not be deleted on `terraform destroy` execution
+    enable_delete = alltrue([var.stage != "PROD" ? true : false, var.amend])
+  }
+}
+output "resident" {
+  value = {
+    for resource, parameter in module.resident : resource => parameter
+  }
+}
+// --- operation controls --- //
+```
 
 ## Resources
 
@@ -36,10 +59,9 @@ This is the resident module for the [ocloud framework](https://github.com/oracle
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_tenancy"></a> [tenancy](#input\_tenancy) | Tenancy Configuration | <pre>object({<br>        class   = number,<br>        buckets = string,<br>        id      = string,<br>        region  = map(string),<br>    })</pre> | n/a | yes |
-| <a name="input_service"></a> [service](#input\_service) | Service Configuration | <pre>object({<br>        name   = string,<br>        label  = string,<br>        stage  = number,<br>        region = map(string)<br>    })</pre> | n/a | yes |
-| <a name="input_resident"></a> [resident](#input\_resident) | Configuration parameter for service operation | <pre>object({<br>        owner          = string,<br>        compartments   = map(number),<br>        repository     = string,<br>        groups         = map(string),<br>        policies       = map(any),<br>        notifications  = map(any),<br>        tag_namespaces = map(number),<br>        tags           = any<br>    })</pre> | n/a | yes |
-| <a name="input_input"></a> [input](#input\_input) | Settings for adminstrator domain | <pre>object({<br>        parent_id     = string,<br>        enable_delete = bool<br>    })</pre> | n/a | yes |
+| <a name="input_input"></a> [input](#input\_input) | Settings for the service resident | <pre>object({<br>    parent_id     = string,<br>    enable_delete = bool<br>  })</pre> | n/a | yes |
+| <a name="input_tenancy"></a> [tenancy](#input\_tenancy) | Tenancy Configuration | <pre>object({<br>    class   = number,<br>    buckets = string,<br>    id      = string,<br>    region  = map(string)<br>  })</pre> | n/a | yes |
+| <a name="input_resident"></a> [resident](#input\_resident) | Service Configuration | <pre>object({<br>    owner          = string,<br>    name           = string,<br>    label          = string,<br>    stage          = number,<br>    region         = map(string)<br>    compartments   = map(number),<br>    repository     = string,<br>    groups         = map(string),<br>    policies       = map(any),<br>    notifications  = map(any),<br>    tag_namespaces = map(number),<br>    tags           = any<br>  })</pre> | n/a | yes |
 
 ## Outputs
 
@@ -55,15 +77,3 @@ This is the resident module for the [ocloud framework](https://github.com/oracle
 | <a name="output_policy_ids"></a> [policy\_ids](#output\_policy\_ids) | A list of policy controls, defined for the different admistrator roles. Policy names correspond with the groups defined on tenancy level. |
 | <a name="output_freeform_tags"></a> [freeform\_tags](#output\_freeform\_tags) | A list of predefined freeform tags, referenced in the provisioning process. |
 | <a name="output_defined_tags"></a> [defined\_tags](#output\_defined\_tags) | A list of actionable tags, utilized for operation, budget- and compliance control. |
-
-## Contributing
-This project is a community project the code is open source.  Please submit your contributions by forking this repository and submitting a pull request!  Oracle appreciates any contributions that are made by the open source community.
-
-## License
-Copyright (c) 2021 Oracle and/or its affiliates.
-
-Licensed under the Universal Permissive License (UPL), Version 1.0.
-
-See [LICENSE](LICENSE) for more details.
-
-ORACLE AND ITS AFFILIATES DO NOT PROVIDE ANY WARRANTY WHATSOEVER, EXPRESS OR IMPLIED, FOR ANY SOFTWARE, MATERIAL OR CONTENT OF ANY KIND CONTAINED OR PRODUCED WITHIN THIS REPOSITORY, AND IN PARTICULAR SPECIFICALLY DISCLAIM ANY AND ALL IMPLIED WARRANTIES OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE.  FURTHERMORE, ORACLE AND ITS AFFILIATES DO NOT REPRESENT THAT ANY CUSTOMARY SECURITY REVIEW HAS BEEN PERFORMED WITH RESPECT TO ANY SOFTWARE, MATERIAL OR CONTENT CONTAINED OR PRODUCED WITHIN THIS REPOSITORY. IN ADDITION, AND WITHOUT LIMITING THE FOREGOING, THIRD PARTIES MAY HAVE POSTED SOFTWARE, MATERIAL OR CONTENT TO THIS REPOSITORY WITHOUT ANY REVIEW. USE AT YOUR OWN RISK. 
